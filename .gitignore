@@ -1,0 +1,6 @@
+*.pyc
+__pycache__
+myenv
+db_repository
+lifegoal.db
+.DS_Store
