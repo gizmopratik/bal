@@ -33,16 +33,16 @@ class LifeGoalList(Resource):
 class LifeGoal(Resource):
     @marshal_with(goal_fields)
     def get(self, goal_id):
-        return models.LifeGoals.query.filter_by(title=goal_id).first()
+        return models.LifeGoals.query.filter_by(title=goal_id).first_or_404()
 
     @marshal_with(goal_fields)
     def put(self, goal_id):
-        entry = models.LifeGoals.query.filter_by(title=goal_id).first()
+        entry = models.LifeGoals.query.filter_by(title=goal_id).first_or_404()
         parser = reqparse.RequestParser()
-        parser.add_argument('title', type=str, help='No Title given', location='json')
+        parser.add_argument('title', type=str, help='No Title given', location='json', required=True)
         parser.add_argument('text', type=str, location='json')
         parser.add_argument('status', type=bool, location='json')
-        parser.add_argument('end_date', type=str, help="end_date required", location='json')
+        parser.add_argument('end_date', type=str, help="end_date required", location='json', required=True)
         args = parser.parse_args()
         goal_time = datetime.datetime.strptime(args['end_date'], "%Y-%m-%d %H:%M:%S.%f")
         entry.title = args['title']
@@ -53,10 +53,10 @@ class LifeGoal(Resource):
         return models.LifeGoals.query.filter_by(title=args['title']).first(), 202
 
     def delete(self, goal_id):
-        trash = models.LifeGoals.query.filter_by(title=goal_id).first()
+        trash = models.LifeGoals.query.filter_by(title=goal_id).first_or_404()
         db.session.delete(trash)
         db.session.commit()
-        return '', 204
+        return 'success', 204
 
 api.add_resource(LifeGoal, '/goals/<string:goal_id>', endpoint='goal')
 api.add_resource(LifeGoalList, '/goals', endpoint='goals')
